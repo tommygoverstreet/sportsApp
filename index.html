@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Softball Assistant Coach</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+
+<body>
+  <!-- Login Page -->
+  <div id="login-page" class="login-page">
+    <div class="login-container">
+      <div class="login-header">
+        <h1>🥎 Softball Assistant Coach</h1>
+        <p>Please sign in with your approved Google account to access the team management system</p>
+      </div>
+      <div class="login-content">
+        <button id="login-google-btn" class="btn-google">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHZpZXdCb3g9IjAgMCAxOCAxOCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTE3LjcgOS4ySDlWMTAuOEgxNS4zQzE0LjkgMTIuOSAxMy4zIDE0LjcgMTEuMSAxNS41TDEyLjYgMTYuNkMxNS4xIDE1LjIgMTYuNiAxMi40IDE2LjYgOS4yQzE2LjYgOC42IDE2LjUgOC4xIDE2LjQgNy42SDE3LjdWOS4yWiIgZmlsbD0iIzQyODVGNCIvPgo8cGF0aCBkPSJNOSAxOEM2LjUgMTggNC40IDE2LjYgMy40IDE0LjVMNC45IDEzLjRDNS40IDE0LjggNy4xIDE1LjggOSAxNS44QzEwLjMgMTUuOCAxMS41IDE1LjMgMTIuNCAxNC41TDEzLjkgMTUuNkMxMi43IDE2LjggMTAuOSAxOCA5IDE4WiIgZmlsbD0iIzM0QTg1MyIvPgo8cGF0aCBkPSJNMyAxMC4yQzMgOC44IDMuNCA3LjUgNC4xIDYuNEw1LjYgNy41QzUuMiA4LjMgNSA5LjEgNSAxMEg1QzUgMTAuOSA1LjIgMTEuNyA1LjYgMTIuNUwzLjEgMTMuNkMzLjQgMTIuNSAzIDExLjMgMyAxMC4yWiIgZmlsbD0iI0ZCQkMwNCIvPgo8cGF0aCBkPSJNOSA3LjJDMTAuMSA3LjIgMTEuMSA3LjYgMTEuOSA4LjNMMTMuMSA3LjFDMTIgNi4xIDEwLjYgNS40IDkgNS40QzcuMSA1LjQgNS40IDYuNCA0LjkgNy45TDYuNCA5QzYuOCA3LjYgNy44IDcuMiA5IDcuMloiIGZpbGw9IiNFQTQzMzUiLz4KPC9zdmc+Cg==" alt="Google">
+          Sign in with Google
+        </button>
+        <div id="login-error" class="login-error" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container" id="app-container" style="display: none;">
+    <!-- Navigation Header -->
+    <header class="app-header">
+      <div class="header-top">
+        <h1>🥎 Softball Assistant Coach</h1>
+        <div class="auth-section">
+          <div id="auth-status" class="auth-status">
+            <button id="google-signin" class="btn secondary">Sign In with Google</button>
+            <div id="user-info" class="user-info" style="display: none;">
+              <img id="user-avatar" class="user-avatar" src="" alt="User Avatar">
+              <span id="user-name" class="user-name"></span>
+              <button id="sign-out" class="btn small">Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-btn active" data-tab="roster">Roster</button>
+        <button class="nav-btn" data-tab="calendar">Calendar</button>
+        <button class="nav-btn" data-tab="team-chat">Team Chat</button>
+        <button class="nav-btn" data-tab="scorebook">Scorebook</button>
+        <button class="nav-btn" data-tab="game-tracker">Game Tracker</button>
+        <button class="nav-btn" data-tab="field-manager">Field Manager</button>
+        <button class="nav-btn" data-tab="lineup-board">Lineup Board</button>
+        <button class="nav-btn" data-tab="whiteboard">Whiteboard</button>
+        <button class="nav-btn admin-only" data-tab="admin" style="display: none;">Admin</button>
+      </nav>
+    </header>
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Roster Tab -->
+      <section id="roster" class="tab-content active">
+        <div class="roster-header">
+          <h2>Team Roster</h2>
+          <button class="btn primary" id="add-player-btn">Add Player</button>
+        </div>
+        <div class="roster-grid">
+          <div class="roster-list" id="roster-list">
+            <!-- Players will be dynamically added here -->
+          </div>
+        </div>
+        <!-- Add Player Modal -->
+        <div id="player-modal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Add New Player</h3>
+            <form id="player-form">
+              <div class="form-group">
+                <label for="player-name">Player Name:</label>
+                <input type="text" id="player-name" required>
+              </div>
+              <div class="form-group">
+                <label for="player-number">Jersey Number:</label>
+                <input type="number" id="player-number" min="1" max="99" required>
+              </div>
+              <div class="form-group">
+                <label for="player-position">Primary Position:</label>
+                <select id="player-position" required>
+                  <option value="">Select Position</option>
+                  <option value="P">Pitcher (P)</option>
+                  <option value="C">Catcher (C)</option>
+                  <option value="1B">First Base (1B)</option>
+                  <option value="2B">Second Base (2B)</option>
+                  <option value="3B">Third Base (3B)</option>
+                  <option value="SS">Shortstop (SS)</option>
+                  <option value="LF">Left Field (LF)</option>
+                  <option value="CF">Center Field (CF)</option>
+                  <option value="RF">Right Field (RF)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="player-bats">Bats:</label>
+                <select id="player-bats" required>
+                  <option value="R">Right</option>
+                  <option value="L">Left</option>
+                  <option value="S">Switch</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="player-throws">Throws:</label>
+                <select id="player-throws" required>
+                  <option value="R">Right</option>
+                  <option value="L">Left</option>
+                </select>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary">Add Player</button>
+                <button type="button" class="btn secondary" id="cancel-player">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <!-- Calendar Tab -->
+      <section id="calendar" class="tab-content">
+        <div class="calendar-header">
+          <h2>Team Calendar</h2>
+          <div class="calendar-controls">
+            <button class="btn primary" id="add-event-btn">Add Event</button>
+            <button class="btn secondary" id="sync-google-calendar">Sync Google Calendar</button>
+          </div>
+        </div>
+        <div class="calendar-content">
+          <div class="calendar-view">
+            <div class="calendar-nav">
+              <button class="btn small" id="prev-month">← Previous</button>
+              <h3 id="current-month">Loading...</h3>
+              <button class="btn small" id="next-month">Next →</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+              <!-- Calendar will be rendered here -->
+            </div>
+          </div>
+          <div class="upcoming-events">
+            <h3>Upcoming Events</h3>
+            <div id="upcoming-events-list" class="events-list">
+              <!-- Upcoming events will be listed here -->
+            </div>
+          </div>
+        </div>
+        <!-- Add Event Modal -->
+        <div id="event-modal" class="modal">
+          <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="event-modal-title">Add New Event</h3>
+            <form id="event-form">
+              <div class="form-group">
+                <label for="event-title">Event Title:</label>
+                <input type="text" id="event-title" required>
+              </div>
+              <div class="form-group">
+                <label for="event-type">Event Type:</label>
+                <select id="event-type" required>
+                  <option value="game">Game</option>
+                  <option value="practice">Practice</option>
+                  <option value="meeting">Team Meeting</option>
+                  <option value="tournament">Tournament</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="event-date">Date:</label>
+                <input type="date" id="event-date" required>
+              </div>
+              <div class="form-group">
+                <label for="event-time">Time:</label>
+                <input type="time" id="event-time" required>
+              </div>
+              <div class="form-group">
+                <label for="event-location">Location:</label>
+                <input type="text" id="event-location" placeholder="Field address or name" required>
+              </div>
+              <div class="form-group">
+                <label for="opponent-team">Opponent (if game):</label>
+                <input type="text" id="opponent-team" placeholder="Opposing team name">
+              </div>
+              <div class="form-group">
+                <label for="event-notes">Notes:</label>
+                <textarea id="event-notes" rows="3" placeholder="Additional information..."></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary">Save Event</button>
+                <button type="button" class="btn secondary" id="cancel-event">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <!-- Team Chat Tab -->
+      <section id="team-chat" class="tab-content">
+        <div class="chat-header">
+          <h2>Team Communication</h2>
+          <div class="chat-controls">
+            <button class="btn primary" id="connect-groupme">Connect GroupMe</button>
+            <button class="btn secondary" id="chat-settings">Settings</button>
+          </div>
+        </div>
+        <div class="chat-content">
+          <div class="groupme-integration">
+            <div id="groupme-status" class="integration-status">
+              <div class="status-message">
+                <h3>🔗 Connect Your Team Chat</h3>
+                <p>Link your GroupMe group to view and send messages directly from the app.</p>
+                <div class="integration-steps">
+                  <ol>
+                    <li>Create a GroupMe group for your team</li>
+                    <li>Get your Group ID from GroupMe</li>
+                    <li>Enter your Access Token below</li>
+                  </ol>
+                </div>
+              </div>
+              <div class="groupme-setup">
+                <div class="form-group">
+                  <label for="groupme-token">GroupMe Access Token:</label>
+                  <input type="password" id="groupme-token" placeholder="Enter your GroupMe access token">
+                  <small>Get your token from <a href="https://dev.groupme.com/"
+                      target="_blank">dev.groupme.com</a></small>
+                </div>
+                <div class="form-group">
+                  <label for="groupme-group-id">Group ID:</label>
+                  <input type="text" id="groupme-group-id" placeholder="Enter your group ID">
+                </div>
+                <button class="btn primary" id="save-groupme-settings">Connect</button>
+              </div>
+            </div>
+            <div id="chat-interface" class="chat-interface" style="display: none;">
+              <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be loaded here -->
+              </div>
+              <div class="message-input-area">
+                <div class="input-group">
+                  <input type="text" id="message-input" placeholder="Type your message..." maxlength="1000">
+                  <button class="btn primary" id="send-message">Send</button>
+                </div>
+                <div class="message-info">
+                  <small>Messages are synced with your GroupMe group</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="team-announcements">
+            <h3>Team Announcements</h3>
+            <div id="announcements-list" class="announcements-list">
+              <div class="announcement">
+                <div class="announcement-header">
+                  <span class="announcement-type">📢 Coach Update</span>
+                  <span class="announcement-date">Today</span>
+                </div>
+                <div class="announcement-content"> Welcome to the team communication center! This is where important
+                  team updates and GroupMe messages will appear. </div>
+              </div>
+            </div>
+            <div class="add-announcement">
+              <button class="btn secondary" id="add-announcement">+ Add Announcement</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Scorebook Tab -->
+      <section id="scorebook" class="tab-content">
+        <div class="scorebook-header">
+          <h2>Game Scorebook</h2>
+          <div class="game-info">
+            <input type="text" id="home-team" placeholder="Home Team" value="Our Team">
+            <span>vs</span>
+            <input type="text" id="away-team" placeholder="Away Team">
+            <input type="date" id="game-date">
+            <button class="btn primary" id="export-pdf">Export PDF</button>
+          </div>
+        </div>
+        <div class="scorebook-container">
+          <!-- Innings Header -->
+          <div class="innings-header">
+            <div class="player-header">Player</div>
+            <div class="position-header">Pos</div>
+            <div class="inning-header">1</div>
+            <div class="inning-header">2</div>
+            <div class="inning-header">3</div>
+            <div class="inning-header">4</div>
+            <div class="inning-header">5</div>
+            <div class="inning-header">6</div>
+            <div class="inning-header">7</div>
+            <div class="stats-header">Stats</div>
+          </div>
+          <!-- Scorebook Grid -->
+          <div id="scorebook-grid" class="scorebook-grid">
+            <!-- Player rows will be dynamically generated -->
+          </div>
+          <!-- Score Summary -->
+          <div class="score-summary">
+            <div class="runs-per-inning">
+              <h3>Runs Per Inning</h3>
+              <div class="runs-grid">
+                <div class="team-runs">
+                  <span>Our Team:</span>
+                  <div class="inning-runs" id="our-runs">
+                    <span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span>
+                  </div>
+                  <div class="total-runs" id="our-total">0</div>
+                </div>
+                <div class="team-runs">
+                  <span>Opponent:</span>
+                  <div class="inning-runs" id="opponent-runs">
+                    <span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span><span>0</span>
+                  </div>
+                  <div class="total-runs" id="opponent-total">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Game Tracker Tab -->
+      <section id="game-tracker" class="tab-content">
+        <div class="game-tracker-header">
+          <h2>Game Tracker</h2>
+          <div class="game-controls">
+            <button class="btn primary" id="new-game-btn">New Game</button>
+            <button class="btn secondary" id="save-game-btn">Save Game</button>
+          </div>
+        </div>
+        <div class="game-tracker-content">
+          <div class="current-game-info">
+            <div class="score-display">
+              <div class="team-score">
+                <h3 id="home-team-display">Our Team</h3>
+                <div class="score" id="home-score">0</div>
+              </div>
+              <div class="vs">VS</div>
+              <div class="team-score">
+                <h3 id="away-team-display">Opponent</h3>
+                <div class="score" id="away-score">0</div>
+              </div>
+            </div>
+            <div class="inning-info">
+              <div class="current-inning">
+                <span>Inning: </span>
+                <span id="current-inning">1</span>
+                <button class="btn small" id="next-inning">Next Inning</button>
+              </div>
+              <div class="batting-team">
+                <span>Batting: </span>
+                <span id="batting-team">Our Team</span>
+                <button class="btn small" id="switch-batting">Switch</button>
+              </div>
+            </div>
+          </div>
+          <div class="batting-lineup">
+            <h3>Current Lineup & At Bat</h3>
+            <div class="at-bat-tracker">
+              <div class="current-batter">
+                <h4>🥎 NOW BATTING</h4>
+                <div id="current-batter-display" class="batter-card">
+                  <div class="batter-number">1</div>
+                  <div class="batter-info">
+                    <div class="batter-name">Select a player</div>
+                    <div class="batter-details">Position: - | AVG: .000</div>
+                  </div>
+                </div>
+                <div class="batting-controls">
+                  <button class="btn small" id="prev-batter">← Previous</button>
+                  <button class="btn small" id="next-batter">Next →</button>
+                </div>
+              </div>
+              <div class="on-deck-circle">
+                <h4>⚾ ON DECK</h4>
+                <div id="on-deck-display" class="batter-card on-deck">
+                  <div class="batter-number">2</div>
+                  <div class="batter-info">
+                    <div class="batter-name">Next batter</div>
+                    <div class="batter-details">Position: - | AVG: .000</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="lineup-display" class="lineup-grid">
+              <!-- Lineup will be displayed here -->
+            </div>
+          </div>
+          <div class="game-history">
+            <h3>Game Log</h3>
+            <div id="game-log" class="game-log">
+              <!-- Game events will be logged here -->
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Field Manager Tab -->
+      <section id="field-manager" class="tab-content">
+        <div class="field-manager-header">
+          <h2>Field Manager</h2>
+          <div class="field-controls">
+            <button class="btn primary" id="auto-position-btn">Auto Position</button>
+            <button class="btn secondary" id="clear-field-btn">Clear Field</button>
+            <button class="btn secondary" id="save-positions-btn">Save Positions</button>
+          </div>
+        </div>
+        <div class="field-manager-content">
+          <div class="field-layout">
+            <div class="softball-field">
+              <!-- Field positions -->
+              <div class="field-position pitcher" data-position="P">
+                <span class="position-label">P</span>
+                <div class="player-slot" data-position="P"></div>
+              </div>
+              <div class="field-position catcher" data-position="C">
+                <span class="position-label">C</span>
+                <div class="player-slot" data-position="C"></div>
+              </div>
+              <div class="field-position first-base" data-position="1B">
+                <span class="position-label">1B</span>
+                <div class="player-slot" data-position="1B"></div>
+              </div>
+              <div class="field-position second-base" data-position="2B">
+                <span class="position-label">2B</span>
+                <div class="player-slot" data-position="2B"></div>
+              </div>
+              <div class="field-position third-base" data-position="3B">
+                <span class="position-label">3B</span>
+                <div class="player-slot" data-position="3B"></div>
+              </div>
+              <div class="field-position shortstop" data-position="SS">
+                <span class="position-label">SS</span>
+                <div class="player-slot" data-position="SS"></div>
+              </div>
+              <div class="field-position left-field" data-position="LF">
+                <span class="position-label">LF</span>
+                <div class="player-slot" data-position="LF"></div>
+              </div>
+              <div class="field-position center-field" data-position="CF">
+                <span class="position-label">CF</span>
+                <div class="player-slot" data-position="CF"></div>
+              </div>
+              <div class="field-position right-field" data-position="RF">
+                <span class="position-label">RF</span>
+                <div class="player-slot" data-position="RF"></div>
+              </div>
+              <!-- Field graphics -->
+              <div class="home-plate"></div>
+              <div class="pitcher-mound"></div>
+              <div class="base first"></div>
+              <div class="base second"></div>
+              <div class="base third"></div>
+              <div class="infield-dirt"></div>
+            </div>
+            <div class="player-bench">
+              <h3>Available Players</h3>
+              <div class="bench-players" id="bench-players">
+                <!-- Available players will be rendered here -->
+              </div>
+              <h3>Substitutes</h3>
+              <div class="substitute-players" id="substitute-players">
+                <!-- Substitute players will be rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Lineup Board Tab -->
+      <section id="lineup-board" class="tab-content">
+        <div class="lineup-board-header">
+          <h2>Batting Lineup Board</h2>
+          <div class="lineup-controls">
+            <button class="btn primary" id="generate-lineup-btn">Generate Lineup</button>
+            <button class="btn secondary" id="print-lineup-btn">Print Lineup</button>
+            <button class="btn secondary" id="randomize-lineup-btn">Randomize</button>
+          </div>
+        </div>
+        <div class="lineup-board-content">
+          <div class="batting-lineup-display">
+            <div class="lineup-header">
+              <h3>🥎 BATTING ORDER 🥎</h3>
+              <div class="game-details">
+                <input type="text" id="lineup-home-team" placeholder="Team Name" value="Our Team">
+                <span>vs</span>
+                <input type="text" id="lineup-away-team" placeholder="Opponent">
+                <input type="date" id="lineup-date">
+              </div>
+            </div>
+            <div class="lineup-cards" id="lineup-cards">
+              <!-- Lineup cards will be generated here -->
+            </div>
+            <div class="lineup-substitutes">
+              <h4>Available Substitutes</h4>
+              <div class="sub-list" id="lineup-subs">
+                <!-- Substitute players will be listed here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Whiteboard Tab -->
+      <section id="whiteboard" class="tab-content">
+        <div class="whiteboard-header">
+          <h2>Coaching Whiteboard</h2>
+          <div class="whiteboard-controls">
+            <div class="tool-group">
+              <button class="tool-btn active" data-tool="pen" id="pen-tool">✏️ Pen</button>
+              <button class="tool-btn" data-tool="eraser" id="eraser-tool">🗑️ Eraser</button>
+              <button class="tool-btn" data-tool="text" id="text-tool">📝 Text</button>
+            </div>
+            <div class="color-group">
+              <input type="color" id="pen-color" value="#2c5aa0" title="Pen Color">
+              <input type="range" id="pen-size" min="2" max="20" value="3" title="Pen Size">
+            </div>
+            <div class="action-group">
+              <button class="btn secondary" id="clear-whiteboard">Clear All</button>
+              <button class="btn primary" id="save-whiteboard">Save Board</button>
+              <button class="btn secondary" id="load-plays">Load Plays</button>
+            </div>
+          </div>
+        </div>
+        <div class="whiteboard-content">
+          <div class="whiteboard-container">
+            <canvas id="whiteboard-canvas" width="800" height="600"></canvas>
+            <div class="play-templates">
+              <h4>Quick Plays</h4>
+              <button class="play-btn" data-play="bunt-coverage">Bunt Coverage</button>
+              <button class="play-btn" data-play="steal-defense">Steal Defense</button>
+              <button class="play-btn" data-play="rundown">Rundown</button>
+              <button class="play-btn" data-play="double-play">Double Play</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Admin Dashboard Tab -->
+      <section id="admin" class="tab-content">
+        <div class="admin-header">
+          <h2>Admin Dashboard</h2>
+          <p>Manage approved users and view team contact information</p>
+        </div>
+        
+        <div class="admin-content">
+          <!-- Approved Emails Management -->
+          <div class="admin-section">
+            <h3>Approved Email Addresses</h3>
+            <div class="email-management">
+              <div class="add-email-form">
+                <input type="email" id="new-email" placeholder="Enter email address to approve" class="email-input">
+                <select id="email-role" class="role-select">
+                  <option value="parent">Parent</option>
+                  <option value="coach">Coach</option>
+                </select>
+                <button id="add-email-btn" class="btn primary">Add Email</button>
+              </div>
+              <div class="approved-emails-list">
+                <h4>Currently Approved Users</h4>
+                <div id="approved-emails-container" class="emails-container">
+                  <!-- Approved emails will be displayed here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Contact Information -->
+          <div class="admin-section">
+            <h3>Team Contact Information</h3>
+            <div class="contact-management">
+              <div class="contact-actions">
+                <button id="export-contacts-btn" class="btn secondary">Export to PDF</button>
+                <button id="refresh-contacts-btn" class="btn secondary">Refresh</button>
+              </div>
+              <div class="contacts-table-container">
+                <table id="contacts-table" class="contacts-table">
+                  <thead>
+                    <tr>
+                      <th>Player Name</th>
+                      <th>Jersey #</th>
+                      <th>Parent/Guardian</th>
+                      <th>Phone</th>
+                      <th>Email</th>
+                      <th>Emergency Contact</th>
+                      <th>Emergency Phone</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="contacts-tbody">
+                    <!-- Contact information will be displayed here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Settings -->
+          <div class="admin-section">
+            <h3>System Settings</h3>
+            <div class="settings-panel">
+              <div class="setting-item">
+                <label for="team-name">Team Name:</label>
+                <input type="text" id="team-name" class="setting-input" placeholder="Enter team name">
+                <button id="save-team-name" class="btn small">Save</button>
+              </div>
+              <div class="setting-item">
+                <label for="season-year">Season Year:</label>
+                <input type="number" id="season-year" class="setting-input" placeholder="2025" min="2020" max="2030">
+                <button id="save-season-year" class="btn small">Save</button>
+              </div>
+              <div class="setting-item">
+                <label for="league-name">League:</label>
+                <input type="text" id="league-name" class="setting-input" placeholder="Enter league name">
+                <button id="save-league-name" class="btn small">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Add/Edit Contact Modal -->
+    <div id="contact-modal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="contact-modal-title">Add Contact Information</h3>
+          <span class="close close-contact">&times;</span>
+        </div>
+        <form id="contact-form" class="contact-form">
+          <input type="hidden" id="contact-player-id">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="parent-name">Parent/Guardian Name:</label>
+              <input type="text" id="parent-name" name="parent-name" required>
+            </div>
+            <div class="form-group">
+              <label for="parent-phone">Phone Number:</label>
+              <input type="tel" id="parent-phone" name="parent-phone" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="parent-email">Email Address:</label>
+              <input type="email" id="parent-email" name="parent-email" required>
+            </div>
+            <div class="form-group">
+              <label for="emergency-contact">Emergency Contact:</label>
+              <input type="text" id="emergency-contact" name="emergency-contact">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="emergency-phone">Emergency Phone:</label>
+              <input type="tel" id="emergency-phone" name="emergency-phone">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Save Contact</button>
+            <button type="button" class="btn secondary cancel-contact">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
