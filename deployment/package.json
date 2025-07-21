@@ -1,0 +1,37 @@
+{
+  "name": "softball-assistant-coach",
+  "version": "1.0.0",
+  "description": "A comprehensive web application for managing 12-year-old girls softball team with interactive scorebook, roster management, and game tracking.",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx live-server .",
+    "build": "echo 'Build complete - static files ready for deployment'",
+    "test": "echo 'No tests specified'",
+    "watch": "npx live-server . --watch=.",
+    "lint": "echo 'No linting configured'",
+    "clean": "echo 'Nothing to clean - static project'",
+    "test:watch": "echo 'No test watch configured'",
+    "test:coverage": "echo 'No test coverage configured'"
+  },
+  "keywords": [
+    "softball",
+    "scorebook",
+    "sports",
+    "team-management",
+    "youth-sports",
+    "coaching"
+  ],
+  "author": "Softball Assistant Coach Team",
+  "license": "MIT",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -8,7 +8,7 @@ A comprehensive web application designed specifically for coaching staff of 12-y
 - **Secure Login**: Google-based authentication for approved users only
 - **Access Control**: Only pre-approved email addresses can access the app
 - **Role Management**: Separate access levels for coaches, parents, and administrators
-- **Owner Protection**: `################@gmail.com` has permanent admin access
+- **Owner Protection**: `tommygoverstreet@gmail.com` has permanent admin access
 
 ### 👑 Admin Dashboard
 - **Email Management**: Add and remove approved email addresses

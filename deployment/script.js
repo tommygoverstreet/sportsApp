@@ -59,7 +59,7 @@ function initializeAuth() {
   } else {
     showLoginPage();
   }
-
+  
   setupLoginHandlers();
 }
 
@@ -134,7 +134,7 @@ function renderAdminDashboard() {
     switchTab('roster');
     return;
   }
-
+  
   renderApprovedEmails();
   renderContactsTable();
   loadTeamSettings();
@@ -1821,19 +1821,19 @@ function updateUserInterface() {
   // Update user info in header
   const userInfo = document.getElementById('user-info');
   const authStatus = document.getElementById('auth-status');
-
+  
   if (currentUser) {
     userInfo.style.display = 'flex';
     document.getElementById('user-avatar').src = currentUser.photoURL || 'https://via.placeholder.com/40';
     document.getElementById('user-name').textContent = currentUser.displayName || currentUser.email;
-
+    
     // Show admin tab if user is admin
     const adminTab = document.querySelector('.nav-btn[data-tab="admin"]');
     if (adminTab && isAdmin(currentUser.email)) {
       adminTab.style.display = 'block';
     }
   }
-
+  
   // Setup sign out handler
   const signOutBtn = document.getElementById('sign-out');
   if (signOutBtn) {
@@ -1850,32 +1850,32 @@ function handleSignOut() {
 // Admin Functions
 function setupAdmin() {
   if (!currentUser || !isAdmin(currentUser.email)) return;
-
+  
   // Setup admin event handlers
   const addEmailBtn = document.getElementById('add-email-btn');
   const exportContactsBtn = document.getElementById('export-contacts-btn');
   const refreshContactsBtn = document.getElementById('refresh-contacts-btn');
-
+  
   if (addEmailBtn) {
     addEmailBtn.addEventListener('click', handleAddEmail);
   }
-
+  
   if (exportContactsBtn) {
     exportContactsBtn.addEventListener('click', exportContactsToPDF);
   }
-
+  
   if (refreshContactsBtn) {
     refreshContactsBtn.addEventListener('click', renderContactsTable);
   }
-
+  
   // Setup settings handlers
   document.getElementById('save-team-name')?.addEventListener('click', () => saveTeamSetting('teamName', 'team-name'));
   document.getElementById('save-season-year')?.addEventListener('click', () => saveTeamSetting('seasonYear', 'season-year'));
   document.getElementById('save-league-name')?.addEventListener('click', () => saveTeamSetting('leagueName', 'league-name'));
-
+  
   // Setup contact modal
   setupContactModal();
-
+  
   // Initial render
   renderApprovedEmails();
   renderContactsTable();
@@ -1885,30 +1885,30 @@ function setupAdmin() {
 function handleAddEmail() {
   const emailInput = document.getElementById('new-email');
   const roleSelect = document.getElementById('email-role');
-
+  
   const email = emailInput.value.trim();
   const role = roleSelect.value;
-
+  
   if (!email) {
     alert('Please enter a valid email address');
     return;
   }
-
+  
   if (isEmailApproved(email)) {
     alert('This email is already approved');
     return;
   }
-
+  
   const newApprovedEmail = {
     email: email,
     role: role,
     addedDate: new Date().toISOString(),
     addedBy: currentUser.email
   };
-
+  
   approvedEmails.push(newApprovedEmail);
   localStorage.setItem('approvedEmails', JSON.stringify(approvedEmails));
-
+  
   emailInput.value = '';
   renderApprovedEmails();
 }
@@ -1916,9 +1916,9 @@ function handleAddEmail() {
 function renderApprovedEmails() {
   const container = document.getElementById('approved-emails-container');
   if (!container) return;
-
+  
   container.innerHTML = '';
-
+  
   approvedEmails.forEach(approvedEmail => {
     const emailDiv = document.createElement('div');
     emailDiv.className = 'email-item';
@@ -1928,10 +1928,10 @@ function renderApprovedEmails() {
         <div class="email-role">${approvedEmail.role}</div>
       </div>
       <div class="email-actions">
-        ${approvedEmail.email !== 'tommygoverstreet@gmail.com' ?
-        `<button class="btn-remove" onclick="removeApprovedEmail('${approvedEmail.email}')">Remove</button>` :
-        '<span style="color: #666; font-size: 0.8rem;">Owner</span>'
-      }
+        ${approvedEmail.email !== 'tommygoverstreet@gmail.com' ? 
+          `<button class="btn-remove" onclick="removeApprovedEmail('${approvedEmail.email}')">Remove</button>` : 
+          '<span style="color: #666; font-size: 0.8rem;">Owner</span>'
+        }
       </div>
     `;
     container.appendChild(emailDiv);
@@ -1943,7 +1943,7 @@ function removeApprovedEmail(email) {
     alert('Cannot remove the owner email');
     return;
   }
-
+  
   if (confirm(`Remove access for ${email}?`)) {
     approvedEmails = approvedEmails.filter(approved => approved.email !== email);
     localStorage.setItem('approvedEmails', JSON.stringify(approvedEmails));
@@ -1954,9 +1954,9 @@ function removeApprovedEmail(email) {
 function renderContactsTable() {
   const tbody = document.getElementById('contacts-tbody');
   if (!tbody) return;
-
+  
   tbody.innerHTML = '';
-
+  
   players.forEach(player => {
     const contact = playerContacts[player.id] || {};
     const row = document.createElement('tr');
@@ -1983,19 +1983,19 @@ function setupContactModal() {
   const contactForm = document.getElementById('contact-form');
   const closeContactModal = document.querySelector('.close-contact');
   const cancelContactBtn = document.querySelector('.cancel-contact');
-
+  
   if (closeContactModal) {
     closeContactModal.addEventListener('click', () => {
       contactModal.style.display = 'none';
     });
   }
-
+  
   if (cancelContactBtn) {
     cancelContactBtn.addEventListener('click', () => {
       contactModal.style.display = 'none';
     });
   }
-
+  
   if (contactForm) {
     contactForm.addEventListener('submit', handleSaveContact);
   }
@@ -2004,25 +2004,25 @@ function setupContactModal() {
 function editPlayerContact(playerId) {
   const player = players.find(p => p.id === playerId);
   const contact = playerContacts[playerId] || {};
-
+  
   document.getElementById('contact-player-id').value = playerId;
   document.getElementById('contact-modal-title').textContent = `Contact Info - ${player.name}`;
-
+  
   document.getElementById('parent-name').value = contact.parentName || '';
   document.getElementById('parent-phone').value = contact.parentPhone || '';
   document.getElementById('parent-email').value = contact.parentEmail || '';
   document.getElementById('emergency-contact').value = contact.emergencyContact || '';
   document.getElementById('emergency-phone').value = contact.emergencyPhone || '';
-
+  
   document.getElementById('contact-modal').style.display = 'block';
 }
 
 function handleSaveContact(e) {
   e.preventDefault();
-
+  
   const playerId = parseInt(document.getElementById('contact-player-id').value);
   const formData = new FormData(e.target);
-
+  
   playerContacts[playerId] = {
     parentName: formData.get('parent-name'),
     parentPhone: formData.get('parent-phone'),
@@ -2031,7 +2031,7 @@ function handleSaveContact(e) {
     emergencyPhone: formData.get('emergency-phone'),
     lastUpdated: new Date().toISOString()
   };
-
+  
   localStorage.setItem('playerContacts', JSON.stringify(playerContacts));
   document.getElementById('contact-modal').style.display = 'none';
   renderContactsTable();
@@ -2040,16 +2040,16 @@ function handleSaveContact(e) {
 function exportContactsToPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-
+  
   doc.setFontSize(20);
   doc.text('Team Contact Information', 20, 20);
-
+  
   doc.setFontSize(12);
   let yPos = 40;
-
+  
   players.forEach(player => {
     const contact = playerContacts[player.id] || {};
-
+    
     doc.text(`Player: ${player.name} (#${player.number})`, 20, yPos);
     yPos += 7;
     doc.text(`Parent: ${contact.parentName || 'Not provided'}`, 20, yPos);
@@ -2062,20 +2062,20 @@ function exportContactsToPDF() {
     yPos += 7;
     doc.text(`Emergency Phone: ${contact.emergencyPhone || 'Not provided'}`, 20, yPos);
     yPos += 15;
-
+    
     if (yPos > 270) {
       doc.addPage();
       yPos = 20;
     }
   });
-
+  
   doc.save('team-contacts.pdf');
 }
 
 function saveTeamSetting(setting, inputId) {
   const input = document.getElementById(inputId);
   const value = input.value.trim();
-
+  
   if (value) {
     teamSettings[setting] = setting === 'seasonYear' ? parseInt(value) : value;
     localStorage.setItem('teamSettings', JSON.stringify(teamSettings));
